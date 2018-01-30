@@ -1,6 +1,7 @@
 // hello
 package main
 
+//引用包名
 import (
 	"fmt"
 

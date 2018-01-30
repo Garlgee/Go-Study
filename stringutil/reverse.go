@@ -1,5 +1,8 @@
-package stringutil
+package stringutil //定义包名
 
+/*
+字符串逆序
+*/
 func Reverse(s string) string {
 	r := []rune(s)
 	for i, j := 0, len(r)-1; i < len(r)/2; i, j = i+1, j-1 {
