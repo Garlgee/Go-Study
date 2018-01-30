@@ -3,8 +3,10 @@ package main
 
 import (
 	"fmt"
+
+	"github.com/Garlgee/Go-Study/stringutil"
 )
 
 func main() {
-	fmt.Println("Hello World!\n")
+	fmt.Println(stringutil.Reverse("Hello World!"))
 }
