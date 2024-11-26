@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+
 	f0()
 	f1()
 	f11()
@@ -60,7 +61,8 @@ func recoverPanic() {
 	panic("This is a panic")
 }
 
-// defer 捕获变量的时机
+// defer 捕获变量的时机；
+// 闭包获取变量相当于引用传递，而非值传递。
 func f0() {
 	fmt.Println("---------------- f0 -------------------")
 	var i int // 定义一个变量 i
@@ -69,6 +71,8 @@ func f0() {
 		defer func() {
 			fmt.Println("Deferred:", i) // 捕获的是变量 i 的引用
 		}()
+		// 区别
+		// defer fmt.Println("Deferred: ", i)
 	}
 	// 输出：
 	//Deferred: 3

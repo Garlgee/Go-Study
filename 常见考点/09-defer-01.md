@@ -162,9 +162,79 @@ First
 #### 4. **性能问题**
 `defer` 的调用在 Go 1.14 之前存在性能开销（如栈帧调整）。Go 1.14 后优化了 `defer`，性能接近直接调用。
 
-##### 建议：
+---
+
+##### **建议**：
+
 对于性能敏感的场景（如高频调用的小函数），如果有大量 `defer`，可以考虑直接显式调用清理逻辑，而不是使用 `defer`。
 
+---
+
+#### 5. **`os.Exit`**
+```go
+func main() {
+	defer fmt.Println("1")
+	fmt.Println("main")
+	os.Exit(0)
+}
+```
+**输出：**
+```
+main
+```
+**结论：**
+当 `os.Exit()` 方法退出程序时，`defer` 不会被执行。
+
+---
+
+#### 6. **不同协程panic defer捕获**
+```go
+func main() {
+	GoA()
+	time.Sleep(1 * time.Second)
+	fmt.Println("main")
+}
+
+func GoA() {
+	defer (func(){ // 该函数只对 GoA 的函数体内发生的 panic 有效。
+		if err := recover(); err != nil {
+			fmt.Println("panic:" + fmt.Sprintf("%s", err))
+		}
+	})()
+
+	go GoB()
+}
+
+func GoB() {
+	// 该 panic 不会被 GoA 中的 recover 捕获，因为 recover 只能捕获当前 Goroutine 的 panic。
+	panic("error") 
+	// Goroutine 中的 panic 没有被捕获，会直接导致整个程序崩溃，即使主 Goroutine没有发生异常。
+}
+```
+
+**分析：**
+
+- 输出：panic: error
+- 程序直接崩溃；
+- GoB() panic 捕获不到。
+- 结论：defer 只对当前协程有效。
+
+**解决方案：**
+```go
+func GoA() {
+	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				fmt.Println("panic:", err)
+			}
+		}()
+		GoB()
+	}()
+}
+// 输出
+// panic: error
+// main
+```
 ---
 
 ### **底层实现**
