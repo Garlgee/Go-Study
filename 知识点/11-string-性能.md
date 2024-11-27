@@ -5,6 +5,7 @@
 #### **1. 字符串拼接（BenchmarkStringConcat）**
 
 ```go
+
 func BenchmarkStringConcatPlus(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		s := ""
@@ -43,6 +44,16 @@ func BenchmarkStringConcatFormat(b *testing.B) {
 		}
 	}
 }
+
+// 使用 bytes.NewBufferString 进行拼接
+func BenchmarkStringConcatBuffer(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var buffer bytes.Buffer
+		for j := 0; j < 100; j++ {
+			buffer.WriteString("test")
+		}
+	}
+}
 ```
 
 | 测试项                              | 执行次数 (N) | 时间 (ns/op) | 内存分配 (B/op) | 分配次数 (allocs/op) |
@@ -51,6 +62,7 @@ func BenchmarkStringConcatFormat(b *testing.B) {
 | `BenchmarkStringConcatBuilder`     | 1697341      | 619.5        | 1016           | 7                    |
 | `BenchmarkStringConcatJoin`        | 394460       | 3039         | 4496           | 9                    |
 | `BenchmarkStringConcatFormat`      | 53742        | 21774        | 22681          | 199                  |
+| `BenchmarkStringConcatBuffer`      | 1138202      | 1079         | 1072           | 4                  |
 
 #### **分析：**
 - **`+` 拼接** (`BenchmarkStringConcatPlus`) 最慢，性能差，尤其是当拼接次数增多时，`+` 会导致每次分配一个新的字符串，造成大量内存分配和复制。

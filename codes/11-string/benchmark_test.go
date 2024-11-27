@@ -3,14 +3,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
 )
 
 /*
-字符串拼接的性能测试
-
 shell:
 	cd 11-string
 	go mod init 11-string
@@ -19,17 +18,22 @@ shell:
 	go test -bench=. -benchmem
 	go test -bench=. -run=^$ -benchmem
 	go test -bench=BenchmarkStringConcatPlus -benchmem
-	* -run=^$：表示不运行普通测试函数，只运行基准测试函数。
-	* -benchmem：报告内存分配情况。
+	# -run=^$：表示不运行普通测试函数，只运行基准测试函数。
+	# -benchmem：报告内存分配情况。
+*/
 
-reulst:
-BenchmarkStringConcatPlus-8               183702              9454 ns/op           21080 B/op         99 allocs/op
-BenchmarkStringConcatBuilder-8           1697341               619.5 ns/op          1016 B/op          7 allocs/op
-BenchmarkStringConcatJoin-8               394460              3039 ns/op            4496 B/op          9 allocs/op
-BenchmarkStringConcatFormat-8              53742             21774 ns/op           22681 B/op        199 allocs/op
+/*
+字符串拼接的性能测试
+
+BenchmarkStringConcatPlus-8               128858             10026 ns/op           21080 B/op         99 allocs/op
+BenchmarkStringConcatBuilder-8           1944698               649.8 ns/op          1016 B/op          7 allocs/op
+BenchmarkStringConcatJoin-8               371589              2881 ns/op            4496 B/op          9 allocs/op
+BenchmarkStringConcatFormat-8              50535             23403 ns/op           22681 B/op        199 allocs/op
+BenchmarkStringConcatBuffer-8            1138202              1079 ns/op            1072 B/op          4 allocs/op
 
 1. + 拼接：简单但效率低。
 2. strings.Builder：高效的推荐方法。
+3. bytes.Buffer 与 strings.Builder：性能接近。
 3. fmt.Sprintf：功能强大，但性能相对较差。
 4. append：性能不及 strings.Builder，比+ 或 sprintf 好点。
 
@@ -70,6 +74,16 @@ func BenchmarkStringConcatFormat(b *testing.B) {
 		var s string
 		for j := 0; j < 100; j++ {
 			s = fmt.Sprintf("%s%s", s, "test")
+		}
+	}
+}
+
+// 使用 bytes.NewBufferString 进行拼接
+func BenchmarkStringConcatBuffer(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		var buffer bytes.Buffer
+		for j := 0; j < 100; j++ {
+			buffer.WriteString("test")
 		}
 	}
 }
