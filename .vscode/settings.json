@@ -1,0 +1,7 @@
+{
+    "go.testFlags": [
+        "-bench=.",
+        "-benchmem"
+    ],
+    "go.testExplorer.alwaysRunBenchmarks": true,
+}
