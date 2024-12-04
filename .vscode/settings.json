@@ -4,4 +4,5 @@
         "-benchmem"
     ],
     "go.testExplorer.alwaysRunBenchmarks": true,
+    "files.autoSave": "afterDelay",
 }
